@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>AILight - 论文总结</title><link href="/" rel="alternate"></link><link href="/feeds/lun-wen-zong-jie.atom.xml" rel="self"></link><id>/</id><updated>2022-01-16T17:07:00+00:00</updated><entry><title>2022年1月第2周论文总结</title><link href="/2022nian-1yue-di-2zhou-lun-wen-zong-jie.html" rel="alternate"></link><published>2022-01-16T17:07:00+00:00</published><updated>2022-01-16T17:07:00+00:00</updated><author><name>Alexander Xuan</name></author><id>tag:None,2022-01-16:/2022nian-1yue-di-2zhou-lun-wen-zong-jie.html</id><summary type="html">&lt;p&gt;2022年1月第2周论文总结&lt;/p&gt;</summary><content type="html">&lt;ol&gt;
+&lt;li&gt;&lt;a href="https://arxiv.org/abs/2201.01995"&gt;Improving Mandarin End-to-End Speech Recognition with Word N-gram Language Model&lt;/a&gt;
+论文题目为利用词N-gram语言模型提升端到端普通话识别的效果，摘要提到目前端到端系统运用的语言模型为了配合声学模型的建模单元，一般都是使用字级或者子词级语言模型，但子词级的语言模型可能会忽略词级信息，所以会限制一些外部语言模型的强度。虽然在E2E ASR中引入词级外部lm的方法有很多，但这些方法主要是针对英语等词边界清晰的语言而设计的，不能直接应用于普通话等每个字符序列都可以有多个对应的词序列的语言。为此，文章提出了一种新的解码算法，在该算法中，动态地构造一个词格来考虑每个局部候选中所有可能的词序列。然后，将生成的词格与外部词级N-gram LM相交，得到候选LM分数。该方法在基于注意力的编码器-解码器(AED)和神经传感器(NT)框架上进行了验证。实验表明，该方法的性能优于子词级LM，包括N-gram LM和神经网络LM。文章在Aishell-1 (CER 4.18%)和Aishell-2 (CER 5.06%)数据集上取得了最先进的结果，并在21k小时的普通话数据集上降低了相对14.8%的CER。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;最近做语音识别，需要学习和关注解码相关的一些方法和文章。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://arxiv.org/abs/2201.02550"&gt;Code-Switching Text Augmentation for Multilingual Speech Processing&lt;/a&gt;
+论文阐述了语音识别任务中多语言统一的识别任务较难，难点主要在不同语言数据分布不均衡。所以文章提出一些用合成来生成不平衡数据的方法来提升模型效果。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://arxiv.org/abs/2201.02419"&gt;Automatic Speech Recognition Datasets in Cantonese Language: A Survey and a New Dataset&lt;/a&gt;
+论文提出了一个新的粤语识别数据集。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://arxiv.org/abs/2201.02483"&gt;A sinusoidal signal reconstruction method for the inversion of the mel-spectrogram&lt;/a&gt;
+论文描述了一种新的从mel谱反转换回波形的传统算法，没有使用深度学习算法，文章使用wavenet作为对比，计算了一些乐器的重构mse误差，误差还是要更小一些。但是没有放出人声的差异，据师兄说其实griffinlim算法其实人声重构mse误差也是更小一些，但是实际人声听觉不是很好。所以需要进一步验证人声的重构效果。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://arxiv.org/abs/2201.03313"&gt;# Cross-Modal ASR Post-Processing System for Error Correction and Utterance Rejection&lt;/a&gt;
+语音识别的性能虽然达到很高的准确率，但是一些错误还是会让读者产生不好的体验，最麻烦的就是多音字这种，这个一般来说事用语言模型来做一些纠正，但是还是会有一些问题，文章提出一种后处理机制，利用多模态，多任务学习提升准确性，据文章所说可以提升10%的CER，并且不会产生太大的延迟。
+kaldi框架，不好实现&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://arxiv.org/abs/2201.02741"&gt;# Two-Pass End-to-End ASR Model Compression&lt;/a&gt;
+文章主要着力于优化端侧语音识别模型。以期可以让模型更小，准确率不发生太大变化。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="# A novel audio representation using space filling curves"&gt;# A novel audio representation using space filling curves&lt;/a&gt;
+目前音频主要使用波形转换为频谱特征作为输入，文章提出用空间填充曲线(sfc)将一维音频波形映射到二维图像。这些映射不压缩输入信号，同时保留其局部结构。文章表示可以达到与mfcc任务可以比的效果。
+只比了语音命令识别，暂时没有很强的参考性。（有开源）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://arxiv.org/abs/2201.03864"&gt;# MR-SVS: Singing Voice Synthesis with Multi-Reference Encoder&lt;/a&gt;
+多说话人歌声合成由于参考音频生成的固定长度embedding作为zeroshot的模型参考，有一些问题，固定长度speaker embedding不够捕捉全部音色信息细节，单个参考音频不能包含足够的目标人音色信息，不同说话人的音高不一致也导致生成音质的衰退。文章提出MR-SVS，采用了一个多参考编码器和一个固定大小的编码器来从多个参考音频编码目标说话人的音色。多参考编码器可以捕获更多目标音色的细节和变。此外，文章提出了一个基音偏移方法来解决基音不一致的问题。
+&lt;a href="https://mr-svs.github.io/"&gt;样本地址&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://arxiv.org/abs/2201.03967"&gt;# Emotion Intensity and its Control for Emotional Voice Conversion&lt;/a&gt;
+文章提出一种语音转换同时进行情感参考并控制的方法。
+&lt;a href="https://kunzhou9646.github.io/Emovox_demo/"&gt;样本地址&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://arxiv.org/abs/2201.03809"&gt;# Music2Video: Automatic Generation of Music Video with fusion of audio and text&lt;/a&gt;
+文章提出一种根据歌曲和文本生成视频的方法。值得一玩。主要是结合音频的文本的生成任务可以参考来做一些其他的事情。
+&lt;a href="https://github.com/joeljang/music2video"&gt;代码地址&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://arxiv.org/abs/2201.04583"&gt;# VoxSRC 2021: The Third VoxCeleb Speaker Recognition Challenge&lt;/a&gt;
+2021年的说话人识别比赛结果总结。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;</content><category term="论文总结"></category><category term="论文"></category><category term="语音"></category><category term="音频"></category></entry></feed>

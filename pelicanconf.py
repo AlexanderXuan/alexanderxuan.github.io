@@ -1,5 +1,5 @@
 AUTHOR = 'AlexanderXuan'
-SITENAME = 'AILight'
+SITENAME = '十一月的晓光'
 SITEURL = ''
 
 PATH = 'content'
@@ -30,4 +30,14 @@ DEFAULT_PAGINATION = 10
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
 
-THEME = "/Users/X/MyLife/blog/pelican_theme/Flex"
+THEME = "/Users/X/MyLife/blog/pelican_theme/nice-blog"
+
+THEME_COLOR = 'blue'
+
+# LOGO = 'logo.extension'
+
+SIDEBAR_DISPLAY = ['about', 'categories', 'tags']
+
+SIDEBAR_ABOUT = "本人的随手笔记"
+
+# COPYRIGHT = "内容版权归本人所有"

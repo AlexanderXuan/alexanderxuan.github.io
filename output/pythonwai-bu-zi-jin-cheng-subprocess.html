@@ -1,0 +1,263 @@
+﻿<!DOCTYPE html>
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<html lang="en">
+<!--<![endif]-->
+	<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="author" content="AlexanderXuan">
+
+
+        <title>十一月的晓光 - python外部子进程subprocess</title>
+
+        <!-- FAVICON -->
+        <!-- CSS -->
+        <link rel="stylesheet" href="/theme/css/style.css">
+
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
+        <!-- Custom CSS -->
+        	<link rel="stylesheet" href="/theme/css/colors/blue.css" id="colors">
+
+        <!-- Code highlight color scheme -->
+            <link href="/theme/css/code_blocks/darkly.css" rel="stylesheet">
+
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+
+        <meta name="tags" contents="python" />
+        <meta name="tags" contents="subprocess" />
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="python外部子进程subprocess">
+    <meta property="og:url" content="pythonwai-bu-zi-jin-cheng-subprocess.html">
+    <meta property="og:description" content="python使用subprocess调用外部模块">
+    <meta property="article:published_time" content="Sunday, January 16, 2022">
+    <meta name="twitter:title" content="python外部子进程subprocess">
+    <meta name="twitter:description" content="python使用subprocess调用外部模块">
+    <meta name="description" content="python使用subprocess调用外部模块">
+    <meta name="twitter:image" content="">
+    <meta property="og:image" content="">
+	          <meta property="og:locale" content="">
+			<meta property="og:site_name" content="十一月的晓光">
+
+	<meta property="og:type" content="article">
+	<meta property="article:author" content="">
+	<meta property="og:url" content="/pythonwai-bu-zi-jin-cheng-subprocess.html">
+	<meta property="og:title" content="python外部子进程subprocess">
+	<meta property="og:description" content="">
+	   <meta property="og:image" content="/images/guilherme-toti.jpg">
+	<meta property="article:published_time" content="2022-01-16 17:05:00+00:00">
+	</head>
+	<body>
+		<header id="header">
+			<!-- Container -->
+			<div class="container">
+				<!-- Logo / Mobile Menu -->
+				<div class="five columns">
+					<div id="textlogo">
+						<h1><a href="/">十一月的晓光</a></h1>
+					</div>
+				</div>
+						<!-- Navigation
+				================================================== -->
+				<div class="eleven columns">
+
+					<nav id="navigation" class="menu">
+						<ul id="responsive">
+
+							<li><a href="/">Home</a></li>
+
+
+						</ul>
+					</nav>
+				</div>
+			</div>
+			<!-- Container / End -->
+		</header>
+		<!-- Header / End -->
+
+		<!-- Breadcrumbs Container-->
+		<div id="content-wrapper">
+			<section id="titlebar">
+				<!-- Container -->
+				<div class="container">
+				<div class="thirteen columns">
+					<nav id="breadcrumbs">
+						<ul>
+							<li>You are here:</li>
+							<li><a href="/">Home</a></li>
+<li><a href="/category/pythonxiao-ji-qiao.html">python小技巧</a></li>
+<li>python外部子进程subprocess</li>
+						</ul>
+					</nav>
+				</div>
+				</div>
+				<!-- Container / End -->
+			</section>
+
+			<div class="container">
+        <div class="twelve alt columns">
+<article class="post" style="margin: 0; border: 0;">
+
+	<section class="post-content">
+
+		<header class="meta">
+			<h2><a href="/pythonwai-bu-zi-jin-cheng-subprocess.html">python外部子进程subprocess</a></h2>
+			<ul>
+				<li>By <a href="/author/alexander-xuan.html">Alexander Xuan</a></li>
+				<li>Sun 16 January 2022</li>
+			</ul>
+		</header>
+
+		<h4>subprocess模块</h4>
+<p>python的子进程可以调用python写的函数，但是有的时候有一些封装好的可执行文件（或者说一些命令），我们想用多进程的方式来调用这些外部的程序（多进程教程可以参考[[python多进程]]），希望可以传参给这些程序，获得其返回内容，返回码或者错误信息。subprocess就是一个可以实现这个功能的模块，我曾看过pydub的一小部分源码，就是用这个模块来调用ffmpeg进行音频操作的，有时候一些工具不好用或者出错可以自己用这个模块来改动或者重写。</p>
+<h5>需求</h5>
+<p>希望利用python多进程的方式实现外部已有程序的调用，并且可以传参和接收返回的内容。</p>
+<h5>实现方式</h5>
+<p>这里用一个使用ffmpeg读取和写出aac文件的程序来做演示，pydub之前这个部分是有问题的，目前还没有查看是否修正。</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="k">def</span> <span class="nf">read_aac</span><span class="p">(</span><span class="n">aac_file</span><span class="p">):</span>
+    <span class="n">read_command</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ffmpeg -i </span><span class="si">{</span><span class="n">aac_file</span><span class="si">}</span><span class="s2"> -acodec pcm_s16le -ac 1 -f s16le -&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">read_command</span><span class="p">,</span>
+                         <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="n">p_out</span><span class="p">,</span> <span class="n">p_err</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_out</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s2">&quot;Decoding failed. ffmpeg returned error code: </span><span class="si">{0}</span><span class="se">\n\n</span><span class="s2">Output from ffmpeg/avlib:</span><span class="se">\n\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span> <span class="n">p_err</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)))</span>
+    <span class="n">data_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_out</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="n">data_len</span><span class="si">}</span><span class="s1">h&#39;</span><span class="p">,</span> <span class="n">p_out</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">write_aac</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">out_aac_file</span><span class="p">):</span>  <span class="c1"># data is a array include int16 numbers</span>
+    <span class="n">t_data</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">p_in</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">t_data</span><span class="p">)</span><span class="si">}</span><span class="s2">h&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">t_data</span><span class="p">)</span>
+    <span class="n">sr</span> <span class="o">=</span> <span class="mi">48000</span>  <span class="c1"># this can be a param</span>
+    <span class="n">ac</span> <span class="o">=</span> <span class="mi">1</span>      <span class="c1"># this can be a param</span>
+    <span class="n">write_command</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ffmpeg -f s16le -ar </span><span class="si">{</span><span class="n">sr</span><span class="si">}</span><span class="s2"> -ac </span><span class="si">{</span><span class="n">ac</span><span class="si">}</span><span class="s2"> -i - -acodec aac -ab 128k -y </span><span class="si">{</span><span class="n">out_aac_file</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">write_command</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                         <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="n">p_out</span><span class="p">,</span> <span class="n">p_err</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">p_in</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s2">&quot;write failed. ffmpeg returned error code: </span><span class="si">{0}</span><span class="se">\n\n</span><span class="s2">Output from ffmpeg/avlib:</span><span class="se">\n\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span> <span class="n">p_err</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">input_file</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;test_aac.aac&#39;</span>
+    <span class="n">output_file</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;out_aac.aac&#39;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">read_aac</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+    <span class="n">write_aac</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done.&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>此外除了可执行文件，一些其他语言写的脚本例如shell，perl等也可以用这种方式来调用。</p>
+		    <div class="tags">
+		        <p>tags: <a href="/tag/python.html">python</a><a href="/tag/subprocess.html">subprocess</a></p>
+		    </div>
+
+<div class="sharing">
+</div>
+<hr>
+
+	</section>
+	<div class="clearfix"></div>
+
+</article>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="four columns">
+                <!-- About  -->
+                <div class="widget no-mg-top">
+                        <h3 class="headline">About</h3><span class="line"></span><div class="clearfix"></div>
+                        <p>本人的随手笔记</p>
+                </div>
+
+
+
+
+                <!-- categories -->
+                <div class="widget">
+                        <h3 class="headline">categories</h3><span class="line"></span><div class="clearfix"></div>
+                        <nav class="categories">
+                                <ul>
+                                            <li><a href="/category/ge-ren-zhu-ye-da-jian.html">个人主页搭建</a></li>
+                                            <li><a href="/category/lun-wen-zong-jie.html">论文总结</a></li>
+                                            <li class="active"><a href="/category/pythonxiao-ji-qiao.html">python小技巧</a></li>
+                                </ul>
+                        </nav>
+                </div>
+                
+                <!-- Tags -->
+                <div class="widget">
+                        <h3 class="headline">Tags</h3><span class="line"></span><div class="clearfix"></div>
+                        <nav class="tags">                                    <a href="/tag/fabric.html">fabric</a>
+                                    <a href="/tag/ge-ren-zhu-ye.html">个人主页</a>
+                                    <a href="/tag/github.html">github</a>
+                                    <a href="/tag/logging.html">logging</a>
+                                    <a href="/tag/lun-wen.html">论文</a>
+                                    <a href="/tag/mutiprocessing.html">mutiprocessing</a>
+                                    <a href="/tag/pelican.html">pelican</a>
+                                    <a href="/tag/python.html">python</a>
+                                    <a href="/tag/subprocess.html">subprocess</a>
+                                    <a href="/tag/tqdm.html">tqdm</a>
+                                    <a href="/tag/watchdog.html">watchdog</a>
+                                    <a href="/tag/xiang-mu-bu-shu.html">项目部署</a>
+                                    <a href="/tag/yin-pin.html">音频</a>
+                                    <a href="/tag/yu-yin.html">语音</a>
+                        </nav>
+                </div>
+        </div>
+			</div>
+			<!-- Container / End -->
+		</div>
+		<!-- Content Wrapper / End -->
+
+		<div id="footer-bottom">
+			<!-- Container -->
+			<div class="container">
+				<div class="eight columns">&copy;  || Blog powered by <a href="http://getpelican.com">Pelican</a></div>
+					<div class="eight columns">
+						<ul class="social-icons-footer">
+								<li>
+									<a href="#" class="tooltip top" title="You can add links in your config file">
+										<i class="fab fa-you can add links in your config file"></i>
+									</a>
+								</li>
+								<li>
+									<a href="#" class="tooltip top" title="Another social link">
+										<i class="fab fa-another social link"></i>
+									</a>
+								</li>
+						</ul>
+					</div>
+			</div>
+			<!-- Container / End -->
+		</div>
+		<!-- Footer Bottom / End -->
+
+	<!-- Javascripts -->
+	<script src="/theme/js/jquery.min.js"></script>
+	</body>
+</html>
